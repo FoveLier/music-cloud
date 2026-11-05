@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>云端音乐 · 原型设计稿</title>
+	<style>
+		:root {
+			--ink: #0B0B10;
+			--surface: #14141C;
+			--raised: #1B1B25;
+			--border: #2A2935;
+			--text: #F7F3EE;
+			--secondary: #A7A3AE;
+			--muted: #6E6A78;
+			--red: #FF4D5A;
+			--red-deep: #C83242;
+			--red-soft: #3A141B;
+			--gold: #F5C86B;
+			--success: #4BD6A0;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		body {
+			background:
+				radial-gradient(circle at 18% 0%, rgba(255, 77, 90, .12), transparent 38%),
+				radial-gradient(circle at 92% 16%, rgba(245, 200, 107, .08), transparent 30%),
+				#07070B;
+			color: var(--text);
+			font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+			min-height: 100vh;
+			padding: 56px 40px 80px;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		.board-head {
+			max-width: 1680px;
+			margin: 0 auto 42px;
+			display: flex;
+			align-items: flex-end;
+			justify-content: space-between;
+			gap: 32px;
+		}
+
+		.kicker {
+			color: var(--red);
+			font-size: 12px;
+			letter-spacing: 5px;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		.board-head h1 {
+			font-size: 54px;
+			letter-spacing: -2px;
+			line-height: 1.08;
+			margin-top: 12px;
+		}
+
+		.board-head p {
+			color: var(--secondary);
+			font-size: 15px;
+			line-height: 1.8;
+			max-width: 420px;
+		}
+
+		.board-head .meta {
+			text-align: right;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.9;
+			white-space: nowrap;
+		}
+
+		.board-head .meta strong { color: var(--gold); font-weight: 600; }
+
+		.screens {
+			max-width: 1680px;
+			margin: 0 auto;
+			display: grid;
+			grid-template-columns: repeat(4, minmax(280px, 1fr));
+			gap: 30px;
+			align-items: start;
+		}
+
+		.screen-wrap { min-width: 0; }
+
+		.screen-label {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			margin-bottom: 12px;
+			padding: 0 4px;
+		}
+
+		.screen-label .num {
+			color: var(--red);
+			font-size: 12px;
+			letter-spacing: 2px;
+			font-weight: 700;
+		}
+
+		.screen-label .name { color: var(--secondary); font-size: 13px; }
+
+		.phone {
+			position: relative;
+			width: 100%;
+			height: 760px;
+			overflow: hidden;
+			border: 1px solid #30303C;
+			border-radius: 42px;
+			background: var(--ink);
+			box-shadow: 0 30px 90px rgba(0, 0, 0, .55), inset 0 0 0 6px #0A0A0F;
+		}
+
+		.phone::before {
+			content: "";
+			position: absolute;
+			top: 9px;
+			left: 50%;
+			width: 96px;
+			height: 22px;
+			transform: translateX(-50%);
+			border-radius: 0 0 18px 18px;
+			background: #050508;
+			z-index: 10;
+		}
+
+		.status {
+			height: 42px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 24px;
+			color: var(--text);
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: .3px;
+		}
+
+		.status .dots { color: var(--secondary); letter-spacing: 2px; }
+
+		.shell {
+			height: calc(100% - 42px);
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+		}
+
+		.scroll {
+			flex: 1;
+			overflow: hidden;
+			padding: 0 20px;
+		}
+
+		.tabbar {
+			height: 66px;
+			flex: 0 0 66px;
+			display: flex;
+			align-items: center;
+			justify-content: space-around;
+			border-top: 1px solid rgba(255,255,255,.04);
+			background: #0B0B10;
+			color: var(--muted);
+			font-size: 10px;
+			letter-spacing: .5px;
+		}
+
+		.tabbar .tab { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+		.tabbar .tab.active { color: var(--red); }
+		.tabbar .glyph { font-size: 17px; line-height: 1; }
+		.tabbar .tab.active .glyph { filter: drop-shadow(0 0 10px rgba(255,77,90,.55)); }
+
+		.page-kicker {
+			color: var(--red);
+			font-size: 9px;
+			letter-spacing: 3px;
+			font-weight: 700;
+			margin-top: 18px;
+		}
+
+		.page-title {
+			font-size: 31px;
+			line-height: 1.12;
+			letter-spacing: -1.2px;
+			margin-top: 9px;
+		}
+
+		.page-sub {
+			color: var(--secondary);
+			font-size: 12px;
+			line-height: 1.7;
+			margin-top: 8px;
+		}
+
+		.hero {
+			position: relative;
+			height: 182px;
+			margin-top: 22px;
+			overflow: hidden;
+			border-radius: 22px;
+			background:
+				linear-gradient(120deg, rgba(11,11,16,.15), rgba(11,11,16,.94)),
+				linear-gradient(135deg, #4A1A24, #17111A 55%, #101017);
+			border: 1px solid rgba(255,255,255,.07);
+		}
+
+		.hero-cover {
+			position: absolute;
+			inset: 0;
+			opacity: .62;
+			background:
+				radial-gradient(circle at 24% 30%, rgba(245,200,107,.35), transparent 28%),
+				radial-gradient(circle at 78% 70%, rgba(255,77,90,.4), transparent 36%),
+				repeating-linear-gradient(120deg, transparent 0 18px, rgba(255,255,255,.035) 18px 19px),
+				linear-gradient(135deg, #742636, #1A1118 62%, #0E0D12);
+		}
+
+		.hero-content {
+			position: absolute;
+			inset: 0;
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+		}
+
+		.hero-tag {
+			align-self: flex-start;
+			padding: 4px 8px;
+			border-radius: 999px;
+			background: rgba(255,77,90,.18);
+			color: #FF8E96;
+			font-size: 8px;
+			letter-spacing: 1.6px;
+			font-weight: 700;
+			margin-bottom: 8px;
+		}
+
+		.hero h2 { font-size: 26px; letter-spacing: -.8px; }
+		.hero-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 7px; }
+		.hero-foot span { color: var(--secondary); font-size: 10px; }
+		.hero-play {
+			width: 38px; height: 38px; border-radius: 50%;
+			display: grid; place-items: center;
+			background: var(--red); color: white; font-size: 14px;
+			box-shadow: 0 10px 26px rgba(255,77,90,.35);
+		}
+
+		.section-row {
+			display: flex; align-items: baseline; justify-content: space-between;
+			margin-top: 25px; margin-bottom: 10px;
+		}
+		.section-row h3 { font-size: 16px; letter-spacing: -.3px; }
+		.section-row span { color: var(--muted); font-size: 9px; letter-spacing: .5px; }
+
+		.pl-row {
+			display: flex; align-items: center; gap: 11px;
+			padding: 11px 0;
+			border-bottom: 1px solid rgba(255,255,255,.055);
+		}
+		.pl-cover {
+			width: 48px; height: 48px; flex: 0 0 48px;
+			border-radius: 12px; position: relative; overflow: hidden;
+			background: linear-gradient(135deg, #3C2430, #17141C);
+		}
+		.pl-cover::after {
+			content: ""; position: absolute; inset: 0;
+			background: repeating-linear-gradient(135deg, transparent 0 7px, rgba(255,255,255,.06) 7px 8px);
+		}
+		.pl-cover.c2 { background: linear-gradient(135deg, #243447, #12151D); }
+		.pl-cover.c3 { background: linear-gradient(135deg, #3B3320, #17150E); }
+		.pl-info { min-width: 0; flex: 1; }
+		.pl-info b { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.pl-info small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+		.pl-arrow { color: var(--muted); font-size: 15px; padding-left: 4px; }
+
+		.footer-note {
+			color: #4E4A57; font-size: 9px; letter-spacing: .3px;
+			margin-top: 20px; text-align: center;
+		}
+
+		/* playlist */
+		.back { margin-top: 12px; color: var(--secondary); font-size: 18px; width: 30px; }
+		.pl-hero { margin-top: 8px; position: relative; display: flex; gap: 15px; padding: 15px 0 18px; }
+		.pl-hero::before {
+			content: ""; position: absolute; inset: -40px -20px 0;
+			background: radial-gradient(circle at 18% 30%, rgba(255,77,90,.18), transparent 46%);
+			z-index: -1;
+		}
+		.big-cover {
+			width: 112px; height: 112px; flex: 0 0 112px; border-radius: 17px;
+			background:
+				radial-gradient(circle at 26% 24%, rgba(245,200,107,.3), transparent 24%),
+				linear-gradient(145deg, #7B2C3A, #18111A 68%);
+			box-shadow: 0 18px 40px rgba(0,0,0,.4);
+			position: relative; overflow: hidden;
+		}
+		.big-cover::after {
+			content: "热"; position: absolute; right: 8px; bottom: 3px;
+			color: rgba(255,255,255,.12); font-size: 52px; font-weight: 800;
+		}
+		.pl-meta { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+		.pl-meta h2 { font-size: 22px; letter-spacing: -.6px; }
+		.pl-meta p { color: var(--secondary); font-size: 10px; line-height: 1.7; margin-top: 7px; }
+		.pl-actions { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+		.play-all {
+			height: 30px; padding: 0 14px; border-radius: 999px;
+			background: var(--red); color: #fff; font-size: 10px; font-weight: 700;
+			display: flex; align-items: center; gap: 6px;
+		}
+		.ghost-btn {
+			height: 30px; padding: 0 12px; border-radius: 999px;
+			border: 1px solid var(--border); color: var(--secondary); font-size: 9px;
+			display: flex; align-items: center;
+		}
+		.track-head { display: flex; justify-content: space-between; margin: 8px 0 2px; color: var(--muted); font-size: 9px; letter-spacing: .3px; }
+		.track {
+			display: flex; align-items: center; gap: 8px; height: 49px;
+			border-bottom: 1px solid rgba(255,255,255,.045);
+		}
+		.track .idx { width: 20px; color: var(--muted); font-size: 9px; font-variant-numeric: tabular-nums; }
+		.track.active .idx { color: var(--red); }
+		.track-main { flex: 1; min-width: 0; }
+		.track-main b { display: block; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.track-main small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.track .dur { color: var(--muted); font-size: 9px; font-variant-numeric: tabular-nums; }
+		.track .mini-play { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(255,77,90,.4); color: var(--red); font-size: 8px; display: grid; place-items: center; }
+		.track.active { background: linear-gradient(90deg, rgba(255,77,90,.08), transparent); }
+
+		/* player */
+		.player-top { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+		.player-top .back { margin: 0; }
+		.mode-pill { color: var(--secondary); border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; font-size: 9px; }
+		.vinyl-wrap { display: grid; place-items: center; margin-top: 30px; }
+		.vinyl {
+			width: 238px; height: 238px; border-radius: 50%;
+			background:
+				repeating-radial-gradient(circle at 50% 50%, #14141A 0 3px, #0B0B10 3px 7px);
+			box-shadow: 0 28px 70px rgba(0,0,0,.65), inset 0 0 0 1px rgba(255,255,255,.06);
+			display: grid; place-items: center; position: relative;
+			animation: spin 18s linear infinite;
+		}
+		.vinyl.paused { animation-play-state: paused; }
+		.vinyl-cover {
+			width: 142px; height: 142px; border-radius: 50%;
+			background:
+				radial-gradient(circle at 30% 25%, rgba(245,200,107,.3), transparent 30%),
+				conic-gradient(from 20deg, #6B2433, #17111A, #2A1A22, #17111A, #6B2433);
+			border: 7px solid #0A0A0F;
+			display: grid; place-items: center;
+			color: rgba(255,255,255,.6); font-size: 18px; letter-spacing: 4px;
+		}
+		.vinyl-pin { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px rgba(245,200,107,.7); }
+		@keyframes spin { to { transform: rotate(360deg); } }
+		.song-title { font-size: 24px; text-align: center; margin-top: 26px; letter-spacing: -.6px; }
+		.song-artist { color: var(--secondary); font-size: 11px; text-align: center; margin-top: 6px; }
+		.progress { margin-top: 28px; }
+		.bar { height: 3px; border-radius: 999px; background: #2A2935; position: relative; }
+		.bar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 38%; border-radius: 999px; background: var(--red); }
+		.bar::before { content: ""; position: absolute; left: 38%; top: 50%; width: 9px; height: 9px; border-radius: 50%; background: var(--red); transform: translate(-50%,-50%); box-shadow: 0 0 12px rgba(255,77,90,.6); z-index: 2; }
+		.times { display: flex; justify-content: space-between; color: var(--muted); font-size: 9px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+		.controls { display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 28px; }
+		.ctrl { color: var(--secondary); font-size: 20px; width: 34px; text-align: center; }
+		.play-big { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; background: var(--red); color: white; font-size: 22px; box-shadow: 0 16px 40px rgba(255,77,90,.34); }
+		.player-modes { display: flex; justify-content: center; gap: 9px; margin-top: 30px; }
+		.mode { color: var(--muted); font-size: 9px; border-bottom: 1px solid transparent; padding: 3px 0; }
+		.mode.active { color: var(--text); border-color: var(--red); }
+
+		/* stats */
+		.report-sub { color: var(--secondary); font-size: 11px; margin-top: 7px; }
+		.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 19px; }
+		.stat-card { padding: 11px 10px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+		.stat-card b { display: block; font-size: 22px; letter-spacing: -.6px; font-variant-numeric: tabular-nums; }
+		.stat-card span { display: block; color: var(--muted); font-size: 8px; margin-top: 4px; }
+		.chart-card { margin-top: 18px; padding: 14px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
+		.chart-head { display: flex; align-items: baseline; justify-content: space-between; }
+		.chart-head h3 { font-size: 13px; font-weight: 600; }
+		.chart-head span { color: var(--muted); font-size: 8px; }
+		.bars { height: 126px; display: flex; align-items: flex-end; gap: 6px; padding-top: 18px; }
+		.bar-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 5px; height: 100%; }
+		.bar-fill { width: 100%; border-radius: 4px 4px 2px 2px; background: linear-gradient(180deg, var(--red), #7E2733); }
+		.bar-fill.gold { background: linear-gradient(180deg, var(--gold), #806532); }
+		.bar-col span { color: var(--muted); font-size: 7px; white-space: nowrap; }
+		.line-chart { height: 120px; margin-top: 10px; position: relative; }
+		.line-chart svg { width: 100%; height: 100%; display: block; }
+		.line-chart .axis { stroke: #2A2935; stroke-width: 1; }
+		.line-chart .path { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+		.line-chart .area { fill: url(#goldArea); }
+		.line-chart .dot { fill: var(--gold); }
+		.line-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: 7px; margin-top: 3px; }
+		.empty-note { margin-top: 13px; color: var(--muted); font-size: 8px; line-height: 1.6; }
+
+		.board-foot {
+			max-width: 1680px; margin: 38px auto 0; padding-top: 20px;
+			border-top: 1px solid rgba(255,255,255,.06);
+			display: flex; justify-content: space-between; gap: 20px;
+			color: var(--muted); font-size: 11px; line-height: 1.7;
+		}
+
+		@media (max-width: 1100px) {
+			body { padding: 34px 20px 60px; }
+			.board-head { flex-direction: column; align-items: flex-start; }
+			.board-head .meta { text-align: left; }
+			.screens { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+		}
+
+		@media (max-width: 620px) {
+			.screens { grid-template-columns: 1fr; }
+			.board-head h1 { font-size: 38px; }
+			.phone { height: 720px; }
+		}
+	</style>
+</head>
+<body>
+	<header class="board-head">
+		<div>
+			<div class="kicker">Prototype 08 / Night Voyage</div>
+			<h1>云端音乐<br>夜航云村</h1>
+			<p>墨色底、云红动作、金色统计。让封面和排版说话，不用次级标签解释每一个区块。</p>
+		</div>
+		<div class="meta">
+			<strong>4 screens</strong><br>
+			Meting / local play records<br>
+			uni-app · Vue3 · qiun-data-charts
+		</div>
+	</header>
+
+	<main class="screens">
+		<!-- 01 Home -->
+		<section class="screen-wrap">
+			<div class="screen-label"><span class="num">01</span><span class="name">发现 · Home</span></div>
+			<div class="phone">
+				<div class="status"><span>21:08</span><span class="dots">●●●　⌁</span></div>
+				<div class="shell">
+					<div class="scroll">
+						<div class="page-kicker">CLOUD MUSIC · 08</div>
+						<h1 class="page-title">今晚，听点什么</h1>
+						<p class="page-sub">把耳机戴上，让城市退后。</p>
+
+						<div class="hero">
+							<div class="hero-cover"></div>
+							<div class="hero-content">
+								<span class="hero-tag">EDITOR'S PICK</span>
+								<h2>热歌榜</h2>
+								<div class="hero-foot">
+									<span>200 首 · 此刻最热</span>
+									<div class="hero-play">▶</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="section-row"><h3>为你推荐</h3><span>全部 →</span></div>
+						<div class="pl-row">
+							<div class="pl-cover c2"></div>
+							<div class="pl-info"><b>新歌榜</b><small>100 首 · 新鲜上架</small></div>
+							<div class="pl-arrow">›</div>
+						</div>
+						<div class="pl-row">
+							<div class="pl-cover c3"></div>
+							<div class="pl-info"><b>飙升榜</b><small>100 首 · 正在升温</small></div>
+							<div class="pl-arrow">›</div>
+						</div>
+						<div class="pl-row">
+							<div class="pl-cover"></div>
+							<div class="pl-info"><b>华语流行</b><small>精选合集 · 本地 Meting</small></div>
+							<div class="pl-arrow">›</div>
+						</div>
+						<p class="footer-note">数据来自本地 Meting 服务</p>
+					</div>
+					<div class="tabbar">
+						<div class="tab active"><span class="glyph">⌂</span><span>发现</span></div>
+						<div class="tab"><span class="glyph">◫</span><span>听歌报告</span></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 02 Playlist -->
+		<section class="screen-wrap">
+			<div class="screen-label"><span class="num">02</span><span class="name">歌单 · Playlist</span></div>
+			<div class="phone">
+				<div class="status"><span>21:09</span><span class="dots">●●●　⌁</span></div>
+				<div class="shell">
+					<div class="scroll">
+						<div class="back">‹</div>
+						<div class="pl-hero">
+							<div class="big-cover"></div>
+							<div class="pl-meta">
+								<h2>热歌榜</h2>
+								<p>200 首 · 华语 / 流行<br>此刻最热的歌，都在这里。</p>
+								<div class="pl-actions">
+									<div class="play-all">▶ 播放全部</div>
+									<div class="ghost-btn">收藏</div>
+								</div>
+							</div>
+						</div>
+						<div class="track-head"><span>曲目</span><span>200 首</span></div>
+						<div class="track active">
+							<span class="idx">01</span>
+							<div class="track-main"><b>Hong Kong (feat. 王菲季候风)</b><small>The Weeknd</small></div>
+							<span class="dur">03:36</span>
+							<div class="mini-play">▶</div>
+						</div>
+						<div class="track">
+							<span class="idx">02</span>
+							<div class="track-main"><b>海屿你</b><small>马也_Crabbit</small></div>
+							<span class="dur">04:55</span>
+							<div class="mini-play">▶</div>
+						</div>
+						<div class="track">
+							<span class="idx">03</span>
+							<div class="track-main"><b>罗生门（Follow）</b><small>梨冻紧</small></div>
+							<span class="dur">03:24</span>
+							<div class="mini-play">▶</div>
+						</div>
+						<div class="track">
+							<span class="idx">04</span>
+							<div class="track-main"><b>普通朋友</b><small>陶喆</small></div>
+							<span class="dur">04:15</span>
+							<div class="mini-play">▶</div>
+						</div>
+						<div class="track">
+							<span class="idx">05</span>
+							<div class="track-main"><b>几分之几</b><small>卢广仲</small></div>
+							<span class="dur">03:48</span>
+							<div class="mini-play">▶</div>
+						</div>
+						<p class="footer-note">点击曲目进入播放页</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 03 Player -->
+		<section class="screen-wrap">
+			<div class="screen-label"><span class="num">03</span><span class="name">播放 · Player</span></div>
+			<div class="phone">
+				<div class="status"><span>21:10</span><span class="dots">●●●　⌁</span></div>
+				<div class="shell">
+					<div class="scroll">
+						<div class="player-top">
+							<div class="back">‹</div>
+							<div class="mode-pill">歌词模式</div>
+						</div>
+						<div class="vinyl-wrap">
+							<div class="vinyl">
+								<div class="vinyl-cover">夜航</div>
+								<div class="vinyl-pin"></div>
+							</div>
+						</div>
+						<h1 class="song-title">Hong Kong</h1>
+						<p class="song-artist">The Weeknd · 热歌榜</p>
+						<div class="progress">
+							<div class="bar"></div>
+							<div class="times"><span>01:12</span><span>03:36</span></div>
+						</div>
+						<div class="controls">
+							<div class="ctrl">⏮</div>
+							<div class="play-big">❚❚</div>
+							<div class="ctrl">⏭</div>
+						</div>
+						<div class="player-modes">
+							<span class="mode active">唱片</span>
+							<span class="mode">歌词</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 04 Stats -->
+		<section class="screen-wrap">
+			<div class="screen-label"><span class="num">04</span><span class="name">统计 · Report</span></div>
+			<div class="phone">
+				<div class="status"><span>21:11</span><span class="dots">●●●　⌁</span></div>
+				<div class="shell">
+					<div class="scroll">
+						<div class="page-kicker">LISTENING REPORT</div>
+						<h1 class="page-title" style="font-size:28px;">听歌报告</h1>
+						<p class="report-sub">你的夜航记录，来自本机播放。</p>
+
+						<div class="stat-grid">
+							<div class="stat-card"><b>42</b><span>总播放</span></div>
+							<div class="stat-card"><b>17</b><span>首歌</span></div>
+							<div class="stat-card"><b>128</b><span>分钟</span></div>
+						</div>
+
+						<div class="chart-card">
+							<div class="chart-head"><h3>播放次数 Top 10</h3><span>本机记录</span></div>
+							<div class="bars">
+								<div class="bar-col"><div class="bar-fill" style="height:92%"></div><span>Hong</span></div>
+								<div class="bar-col"><div class="bar-fill" style="height:74%"></div><span>海屿</span></div>
+								<div class="bar-col"><div class="bar-fill" style="height:59%"></div><span>罗生门</span></div>
+								<div class="bar-col"><div class="bar-fill" style="height:46%"></div><span>普通</span></div>
+								<div class="bar-col"><div class="bar-fill gold" style="height:38%"></div><span>几分</span></div>
+								<div class="bar-col"><div class="bar-fill gold" style="height:30%"></div><span>夜曲</span></div>
+							</div>
+						</div>
+
+						<div class="chart-card">
+							<div class="chart-head"><h3>最近 7 天听歌时长</h3><span>分钟</span></div>
+							<div class="line-chart">
+								<svg viewBox="0 0 300 100" preserveAspectRatio="none">
+									<defs>
+										<linearGradient id="goldArea" x1="0" y1="0" x2="0" y2="1">
+											<stop offset="0" stop-color="#F5C86B" stop-opacity=".25"/>
+											<stop offset="1" stop-color="#F5C86B" stop-opacity="0"/>
+										</linearGradient>
+									</defs>
+									<line class="axis" x1="0" y1="82" x2="300" y2="82"/>
+									<path class="area" d="M0,68 L48,52 L96,63 L144,34 L192,47 L240,22 L300,40 L300,100 L0,100 Z"/>
+									<path class="path" d="M0,68 L48,52 L96,63 L144,34 L192,47 L240,22 L300,40"/>
+									<circle class="dot" cx="48" cy="52" r="2.6"/>
+									<circle class="dot" cx="144" cy="34" r="2.6"/>
+									<circle class="dot" cx="240" cy="22" r="2.6"/>
+								</svg>
+								<div class="line-labels"><span>11-01</span><span>11-02</span><span>11-03</span><span>11-04</span><span>11-05</span><span>11-06</span><span>今天</span></div>
+							</div>
+						</div>
+						<p class="empty-note">每一次开始播放都会留下记录；暂停后继续同一首不重复计数。</p>
+					</div>
+					<div class="tabbar">
+						<div class="tab"><span class="glyph">⌂</span><span>发现</span></div>
+						<div class="tab active"><span class="glyph">◫</span><span>听歌报告</span></div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="board-foot">
+		<span>云端音乐 · 仿网易云音乐专题实战 · 李熹元 · 20241010113</span>
+		<span>Prototype before implementation · 2026-11</span>
+	</footer>
+</body>
+</html>

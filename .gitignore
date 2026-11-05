@@ -1,0 +1,11 @@
+node_modules/
+meting-server/node_modules/
+app/unpackage/
+app/.hbuilderx/
+app/.idea/
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*
+tools/chrome-profile-*/

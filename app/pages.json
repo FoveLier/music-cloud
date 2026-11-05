@@ -1,0 +1,70 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^qiun-data-charts$": "@/uni_modules/qiun-data-charts/components/qiun-data-charts/qiun-data-charts.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "云端音乐",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "light"
+      }
+    },
+    {
+      "path": "pages/playlist/playlist",
+      "style": {
+        "navigationBarTitleText": "歌单",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "light"
+      }
+    },
+    {
+      "path": "pages/player/player",
+      "style": {
+        "navigationBarTitleText": "正在播放",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/stats/stats",
+      "style": {
+        "navigationBarTitleText": "听歌报告",
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "云端音乐",
+    "navigationBarBackgroundColor": "#0B0B10",
+    "backgroundColor": "#0B0B10",
+    "backgroundTextStyle": "dark",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#8A8794",
+    "selectedColor": "#FF4D5A",
+    "backgroundColor": "#0B0B10",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "发现",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "听歌报告",
+        "iconPath": "static/tabbar/stats.png",
+        "selectedIconPath": "static/tabbar/stats-active.png"
+      }
+    ]
+  }
+}
